@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Ball Orientation Test</title>
+        <style>
+            canvas {
+                background-color: #F08080;
+                width: 300px;
+                height: 300px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>Ball Orientation Demo</h1>
+
+        <div id="demo-div">
+            <a id="start_demo" class="btn btn-lg btn-success py-1" href="#" role="button">Start the demo</a>            
+            
+            <h4 style="margin-top:0.75rem;">Orientation</h4>
+            <ul>
+                <li>X-axis: <span id="Orientation_b">0</span><span>&deg;</span></li>
+                <li>Y-axis: <span id="Orientation_g">0</span><span>&deg;</span></li>
+            </ul>
+        </div>
+
+        <div>
+            <canvas>
+            </canvas>
+        </div>
+
+        <script>
+            var canvas = document.querySelector("canvas");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            var l = canvas.getContext('2d');
+
+            var x = Math.floor(innerWidth/2);
+            var y = Math.floor(innerHeight/2);
+            var internal_x = x;
+            var internal_y = y;
+            var vx = 0;
+            var vy = 0;
+            var radius = 20;
+            move();
+
+            function move() {
+                requestAnimationFrame(move);
+ 
+                l.clearRect(0, 0, innerWidth, innerHeight);
+ 
+                l.beginPath();
+                l.strokeStyle = "black";
+                l.arc(x, y, radius, 0, Math.PI * 2, false);
+                l.stroke();
+ 
+                if (radius + x > innerWidth)
+                    vx = 0 - vx;
+ 
+                if (x - radius < 0)
+                    vx = 0 - vx;
+ 
+                if (y + radius > innerHeight)
+                    vy = 0 - vy;
+ 
+                if (y - radius < 0)
+                    vy = 0 - vy;
+ 
+                internal_x = internal_x + vx;
+                internal_y = internal_y + vy;
+
+                x = Math.floor(internal_x);
+                y = Math.floor(internal_y);
+ 
+            }
+
+            function handleOrientation(event) {
+                updateFieldIfNotNull('Orientation_a', event.alpha);
+                updateFieldIfNotNull('Orientation_b', event.beta);
+                updateFieldIfNotNull('Orientation_g', event.gamma);
+
+                if (Math.abs(event.beta) >= 20) {
+                    vy = Math.min(5, Math.max(-5, vy + (0.25 * event.beta/event.beta)));
+                }
+
+                if (Math.abs(event.alpha) >= 20) {
+                    vx = Math.min(5, Math.max(-5, vx - (0.25 * event.gamma/event.gamma)));
+                }
+            }
+            
+            function updateFieldIfNotNull(fieldName, value, precision=10){
+                if (value != null)
+                    document.getElementById(fieldName).innerHTML = value.toFixed(precision);
+            }
+            
+            let is_running = false;
+            let demo_button = document.getElementById("start_demo");
+            demo_button.onclick = function(e) {
+                e.preventDefault();
+                
+                if (
+                    DeviceMotionEvent &&
+                    typeof DeviceMotionEvent.requestPermission === "function"
+                ) {
+                    DeviceMotionEvent.requestPermission();
+                }
+                
+                if (is_running){
+                    window.removeEventListener("deviceorientation", handleOrientation);
+                    demo_button.innerHTML = "Start demo";
+                    is_running = false;
+                }else{
+                    window.addEventListener("deviceorientation", handleOrientation);
+                    document.getElementById("start_demo").innerHTML = "Stop demo";
+                    is_running = true;
+                }
+            };
+        </script>
+    </body>
+</html>
