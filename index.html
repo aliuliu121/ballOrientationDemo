@@ -77,8 +77,8 @@
             }
 
             function handleOrientation(event) {
-                updateFieldIfNotNull('Orientation_a', event.alpha);
                 updateFieldIfNotNull('Orientation_b', event.beta);
+                updateFieldIfNotNull('Orientation_g', event.gamma);
 
                 if (Math.abs(event.beta) >= 20) {
                     vy = Math.min(5, Math.max(-5, vy + (0.25 * event.beta/event.beta)));
